@@ -8,6 +8,13 @@ import { DotLoader } from "react-spinners";
 function App() {
   const db = getDatabase(app);
   const [movies, setMovies] = useState([]);
+  writeMovieData(
+    "Pinocchio",
+    "Pinocchio",
+    1940,
+    "https://upload.wikimedia.org/wikipedia/en/b/ba/Pinocchio-1940-poster.jpg",
+    false
+  );
 
   useState(() => {
     onValue(
@@ -70,7 +77,7 @@ function App() {
       ) : (
         <div className='flex items-center justify-center'>
           <DotLoader
-            color={"#ff3323"}
+            color={"rgba(56,189,248, 0.4)"}
             size={150}
             aria-label='Loading Spinner'
             data-testid='loader'
