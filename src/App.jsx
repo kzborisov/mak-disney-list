@@ -20,6 +20,9 @@ function App() {
   }, []);
 
   const handleClick = (movie) => {
+    if (!confirm(`Have you watched ${movie.title}?`)) {
+      return;
+    }
     writeMovieData(
       movie.title,
       movie.title,
