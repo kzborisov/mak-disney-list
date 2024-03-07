@@ -40,10 +40,10 @@ function App() {
       </h1>
 
       {movies.length !== 0 ? (
-        <div className='grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 mx-6'>
+        <div className='grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 mx-6'>
           {movies
             .sort((a, b) => b.year - a.year)
-            .sort((m) => !m.watched)
+            .sort((m) => m.watched)
             .map((movie) => (
               <React.Fragment key={movie.title}>
                 <MovieCard
