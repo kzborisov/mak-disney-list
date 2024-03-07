@@ -38,8 +38,16 @@ function App() {
 
   return (
     <>
-      <h1 className='text-3xl font-bold text-center px-4 py-10'>
-        MAK Disney List
+      <h1 className='text-center mx-6 my-12 text-3xl font-extrabold text-gray-900 md:text-5xl lg:text-6xl'>
+        <span className='text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400'>
+          MAK{" "}
+        </span>
+        <span className='text-transparent bg-clip-text bg-gradient-to-l to-emerald-600 from-sky-400'>
+          Disney{" "}
+        </span>
+        <span className='text-transparent bg-clip-text bg-gradient-to-l to-emerald-600 from-sky-400'>
+          List{" "}
+        </span>
       </h1>
 
       {movies.length !== 0 ? (
