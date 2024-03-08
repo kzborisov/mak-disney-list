@@ -1,12 +1,9 @@
-import React from "react";
-import { writeMovieData } from "../firebase";
-
 const MovieCard = ({ title, year, watched, imgUrl, handleClick }) => {
   return (
     <div
       className={`${
         watched ? "grayscale" : "grayscale-0"
-      } flex flex-col justify-center items-center gap-4 hover:scale-110 transition-all ease-in duration-100 cursor-pointer`}
+      } flex flex-col justify-space items-center gap-4 hover:scale-110 transition-all ease-in duration-100 cursor-pointer`}
       onClick={handleClick}
     >
       <img src={imgUrl} alt={title} />
