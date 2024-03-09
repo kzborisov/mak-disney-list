@@ -31,3 +31,13 @@ export function writeMovieData(movieId, title, year, imgUrl, watched) {
     watched,
   });
 }
+
+export function writeNextMovie(movie) {
+  const reference = ref(db, "nextMovie/");
+  set(reference, {
+    title: movie.title,
+    year: movie.year,
+    image_url: movie.image_url,
+    watched: movie.watched,
+  });
+}

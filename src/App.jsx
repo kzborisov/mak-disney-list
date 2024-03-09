@@ -1,10 +1,11 @@
 import { getDatabase, onValue, ref } from "firebase/database";
-import { app, writeMovieData } from "./firebase";
+import { app, writeMovieData, writeNextMovie } from "./firebase";
 import React, { useState } from "react";
 import { DotLoader } from "react-spinners";
 
 import MovieCard from "./components/MovieCard.jsx";
 import Button from "./components/Button.jsx";
+import Modal from "./components/Modal.jsx";
 
 function App() {
   const db = getDatabase(app);
@@ -12,6 +13,8 @@ function App() {
   const [sortByYear, setSortByYear] = useState("asc");
   const [sortByName, setSortByName] = useState("asc");
   const [showModal, setShowModal] = useState(false);
+  const [currentMovie, setCurrentMovie] = useState({});
+  const [nextMovie, setNextMovie] = useState({});
 
   useState(() => {
     onValue(
@@ -21,29 +24,35 @@ function App() {
         onlyOnce: true,
       }
     );
+
+    onValue(ref(db, "/nextMovie"), (snapshot) => setNextMovie(snapshot.val()), {
+      onlyOnce: true,
+    });
   }, []);
 
   const handleCardClick = (movie) => {
-    let msg;
-    if (movie.watched) {
-      msg = `Do you want to mark ${movie.title} as not watched?`;
-    } else {
-      msg = `Have you watched ${movie.title}?`;
-    }
-    if (!confirm(msg)) {
-      return;
-    }
-    writeMovieData(
-      movie.title,
-      movie.title,
-      movie.year,
-      movie.image_url,
-      !movie.watched
-    );
-    const updatedMovies = movies.map((m) =>
-      m.title === movie.title ? { ...m, watched: !m.watched } : m
-    );
-    setMovies(updatedMovies);
+    setShowModal(true);
+    setCurrentMovie(movie);
+    // let msg;
+    // if (movie.watched) {
+    //   msg = `Do you want to mark ${movie.title} as not watched?`;
+    // } else {
+    //   msg = `Have you watched ${movie.title}?`;
+    // }
+    // if (!confirm(msg)) {
+    //   return;
+    // }
+    // writeMovieData(
+    //   movie.title,
+    //   movie.title,
+    //   movie.year,
+    //   movie.image_url,
+    //   !movie.watched
+    // );
+    // const updatedMovies = movies.map((m) =>
+    //   m.title === movie.title ? { ...m, watched: !m.watched } : m
+    // );
+    // setMovies(updatedMovies);
   };
 
   const handleSortByYear = () => {
@@ -65,6 +74,33 @@ function App() {
     setMovies(sortedMovies);
   };
 
+  const handleNextMovieClick = () => {
+    setNextMovie(currentMovie);
+    writeNextMovie(currentMovie);
+  };
+
+  const handleWatchedMovie = (e, movie) => {
+    let watched;
+    const btnText = e.target.textContent.trim();
+    if (btnText === "Yes") {
+      watched = true;
+    } else if (btnText === "No") {
+      watched = false;
+    }
+
+    writeMovieData(
+      movie.title,
+      movie.title,
+      movie.year,
+      movie.image_url,
+      watched
+    );
+    const updatedMovies = movies.map((m) =>
+      m.title === movie.title ? { ...m, watched } : m
+    );
+    setMovies(updatedMovies);
+  };
+
   return (
     <>
       <h1 className='text-center my-12 text-3xl font-extrabold text-gray-900 md:text-5xl lg:text-6xl'>
@@ -80,6 +116,12 @@ function App() {
       </h1>
 
       <section id='content' className='mx-5 md:mx-20'>
+        <h4 className='text-center text-lg font-semibold text-gray-500'>
+          Next Movie:{" "}
+          <span className='text-transparent bg-clip-text font-extrabold bg-gradient-to-l to-emerald-600 from-sky-400'>
+            {nextMovie?.title}
+          </span>
+        </h4>
         <div className='flex flex-col items-center justify-center gap-4 my-10'>
           <p className='text-center text-sm text-gray-700'>Sort By</p>
 
@@ -123,6 +165,15 @@ function App() {
           </div>
         )}
       </section>
+
+      {showModal && (
+        <Modal
+          movie={currentMovie}
+          handleCloseModal={() => setShowModal((prev) => !prev)}
+          handleNextMovie={handleNextMovieClick}
+          handleWatchedMovie={handleWatchedMovie}
+        />
+      )}
     </>
   );
 }
