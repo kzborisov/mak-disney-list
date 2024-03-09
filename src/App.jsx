@@ -2,19 +2,21 @@ import { getDatabase, onValue, ref } from "firebase/database";
 import { app, writeMovieData } from "./firebase";
 import React, { useState } from "react";
 import { DotLoader } from "react-spinners";
-import { FaArrowDown, FaArrowUp } from "react-icons/fa";
 
 import MovieCard from "./components/MovieCard.jsx";
+import Button from "./components/Button.jsx";
+
 function App() {
   const db = getDatabase(app);
   const [movies, setMovies] = useState([]);
-  const [sort, setSort] = useState("asc");
+  const [sortByYear, setSortByYear] = useState("asc");
+  const [sortByName, setSortByName] = useState("asc");
+  const [showModal, setShowModal] = useState(false);
 
   useState(() => {
     onValue(
       ref(db, "/movies"),
-      (snapshot) =>
-        setMovies(Object.values(snapshot.val()).sort((m) => m.watched)),
+      (snapshot) => setMovies(Object.values(snapshot.val())),
       {
         onlyOnce: true,
       }
@@ -22,7 +24,13 @@ function App() {
   }, []);
 
   const handleCardClick = (movie) => {
-    if (!confirm(`Have you watched ${movie.title}?`)) {
+    let msg;
+    if (movie.watched) {
+      msg = `Do you want to mark ${movie.title} as not watched?`;
+    } else {
+      msg = `Have you watched ${movie.title}?`;
+    }
+    if (!confirm(msg)) {
       return;
     }
     writeMovieData(
@@ -38,11 +46,22 @@ function App() {
     setMovies(updatedMovies);
   };
 
-  const handleSortClick = () => {
-    setSort((prev) => (prev === "asc" ? "desc" : "asc"));
-    const sortedMovies = movies
-      .sort((a, b) => (sort === "asc" ? b.year - a.year : a.year - b.year))
-      .sort((m) => m.watched);
+  const handleSortByYear = () => {
+    setSortByYear((prev) => (prev === "asc" ? "desc" : "asc"));
+    const sortedMovies = movies.sort((a, b) =>
+      sortByYear === "asc" ? b.year - a.year : a.year - b.year
+    );
+
+    setMovies(sortedMovies);
+  };
+
+  const handleSortByName = () => {
+    setSortByName((prev) => (prev === "asc" ? "desc" : "asc"));
+    const sortedMovies = movies.sort((a, b) =>
+      sortByName === "asc"
+        ? a.title.localeCompare(b.title)
+        : b.title.localeCompare(a.title)
+    );
     setMovies(sortedMovies);
   };
 
@@ -61,28 +80,37 @@ function App() {
       </h1>
 
       <section id='content' className='mx-5 md:mx-20'>
-        <div className='flex justify-end my-10'>
-          <button
-            type='button'
-            className='bg-gradient-to-r to-emerald-600 from-sky-400 flex items-center justify-center gap-4 p-2 rounded-xl text-white'
-            onClick={handleSortClick}
-          >
-            Sort {sort === "asc" ? <FaArrowUp /> : <FaArrowDown />}
-          </button>
+        <div className='flex flex-col items-center justify-center gap-4 my-10'>
+          <p className='text-center text-sm text-gray-700'>Sort By</p>
+
+          <div className='flex gap-4'>
+            <Button
+              handleClick={handleSortByYear}
+              sortBy={sortByYear}
+              title='Year'
+            />
+            <Button
+              handleClick={handleSortByName}
+              sortBy={sortByName}
+              title='Name'
+            />
+          </div>
         </div>
         {movies.length !== 0 ? (
           <div className='grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4'>
-            {movies.map((movie) => (
-              <React.Fragment key={movie.title}>
-                <MovieCard
-                  title={movie.title}
-                  year={movie.year}
-                  watched={movie.watched}
-                  imgUrl={movie.image_url}
-                  handleClick={() => handleCardClick(movie)}
-                />
-              </React.Fragment>
-            ))}
+            {movies
+              .sort((m) => m.watched)
+              .map((movie) => (
+                <React.Fragment key={movie.title}>
+                  <MovieCard
+                    title={movie.title}
+                    year={movie.year}
+                    watched={movie.watched}
+                    imgUrl={movie.image_url}
+                    handleClick={() => handleCardClick(movie)}
+                  />
+                </React.Fragment>
+              ))}
           </div>
         ) : (
           <div className='flex items-center justify-center'>
