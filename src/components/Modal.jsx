@@ -14,7 +14,7 @@ const Modal = ({
     >
       <div
         id='content'
-        className='flex flex-col gap-6 justify-center bg-slate-50 py-5 px-5 md:px-10 w-[90%] md:w-1/3'
+        className='flex flex-col gap-6 justify-center bg-slate-50 py-5 px-5 md:px-10 w-[90%] md:w-[50%]'
       >
         <div className='flex w-full justify-end'>
           <IoIosClose
@@ -27,22 +27,34 @@ const Modal = ({
           <h3 className='text-xl text-center md:text-3xl font-semibold text-gray-500'>
             {movie.title} ({movie.year})
           </h3>
-          <img className='w-2/3' src={movie.image_url} alt={movie.title} />
+          <img
+            className='w-2/3 md:max-w-[350px]'
+            src={movie.image_url}
+            alt={movie.title}
+          />
 
-          <div className='flex flex-col items-center justify-center gap-2'>
-            <div className='flex items-center justify-between gap-4'>
-              <div className='flex justify-between gap-2'>
-                <Button
-                  handleClick={(e) => handleWatchedMovie(e, movie)}
-                  title='We watched it!'
-                />
-                <Button
-                  handleClick={(e) => handleWatchedMovie(e, movie)}
-                  title="We haven't watched it"
-                />
+          <div className='flex flex-col items-center justify-center gap-6'>
+            <div className='flex flex-col items-center justify-between gap-4'>
+              <div className='flex justify-center items-center gap-2'>
+                <label htmlFor='watched'>Have we watched it?</label>
+                <select
+                  className='rounded-xl p-2'
+                  name='watched'
+                  id='watched'
+                  onChange={(e) => handleWatchedMovie(e, movie)}
+                >
+                  <option value='none' selected disabled hidden>
+                    Select an Option
+                  </option>
+                  <option value='yes'>Yes</option>
+                  <option value='no'>No</option>
+                </select>
               </div>
+              <Button
+                handleClick={handleNextMovie}
+                title='We will watch it next'
+              />
             </div>
-            <Button handleClick={handleNextMovie} title='Watch next?' />
           </div>
         </div>
       </div>

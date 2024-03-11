@@ -6,6 +6,7 @@ import { DotLoader } from "react-spinners";
 import MovieCard from "./components/MovieCard.jsx";
 import Button from "./components/Button.jsx";
 import Modal from "./components/Modal.jsx";
+import { FaArrowUp } from "react-icons/fa";
 
 function App() {
   const db = getDatabase(app);
@@ -15,6 +16,8 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   const [currentMovie, setCurrentMovie] = useState({});
   const [nextMovie, setNextMovie] = useState({});
+  const [isHidden, setIsHidden] = useState(true);
+
   const watchedMoviesCount = movies.filter((m) => m.watched).length;
 
   useState(() => {
@@ -28,6 +31,16 @@ function App() {
 
     onValue(ref(db, "/nextMovie"), (snapshot) => setNextMovie(snapshot.val()), {
       onlyOnce: true,
+    });
+  }, []);
+
+  useState(() => {
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 200) {
+        setIsHidden(false);
+      } else {
+        setIsHidden(true);
+      }
     });
   }, []);
 
@@ -62,13 +75,7 @@ function App() {
   };
 
   const handleWatchedMovie = (e, movie) => {
-    let watched;
-    const btnText = e.target.textContent.trim();
-    if (btnText === "Yes") {
-      watched = true;
-    } else if (btnText === "No") {
-      watched = false;
-    }
+    const watched = Boolean(e.target.value === "yes");
 
     writeMovieData(
       movie.title,
@@ -82,6 +89,30 @@ function App() {
     );
     setMovies(updatedMovies);
     setShowModal(false);
+  };
+
+  const handleOnChangeFiltering = (e) => {
+    const searchPattern = e.target.value;
+    const filtered = movies.filter((m) =>
+      m.title.toLowerCase().includes(searchPattern.toLowerCase())
+    );
+    setMovies(filtered);
+    if (searchPattern === "") {
+      onValue(
+        ref(db, "/movies"),
+        (snapshot) => setMovies(Object.values(snapshot.val())),
+        {
+          onlyOnce: true,
+        }
+      );
+    }
+  };
+
+  const handleScrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   };
 
   return (
@@ -99,8 +130,8 @@ function App() {
       </h1>
 
       <section id='content' className='mx-5 md:mx-20'>
-        <div className='flex flex-col items-center justify-center gap-2'>
-          <h4 className='text-center text-lg font-semibold text-gray-500'>
+        <div className='flex flex-col items-center justify-center'>
+          <h4 className='text-center text-lg font-semibold text-gray-500 mb-2'>
             Next:{" "}
             <span
               onClick={(e) => {
@@ -113,31 +144,39 @@ function App() {
               {nextMovie?.title}
             </span>
           </h4>
-          <p className='text-md font-semibold text-gray-500'>
-            Watched Movies Count:{" "}
-            <span className='font-bold'>{watchedMoviesCount}</span>
-          </p>
-
-          <p className='text-md font-semibold text-gray-500'>
-            Movies to watch:{" "}
-            <span className='font-bold'>
-              {movies.filter((m) => !m.watched).length}
-            </span>
-          </p>
-        </div>
-        <div className='flex flex-col items-center justify-center gap-4 my-10'>
-          <p className='text-center text-sm text-gray-700'>Sort By</p>
-
           <div className='flex gap-4'>
-            <Button
-              handleClick={handleSortByYear}
-              sortBy={sortByYear}
-              title='Year'
-            />
-            <Button
-              handleClick={handleSortByName}
-              sortBy={sortByName}
-              title='Name'
+            <span className='text-sm font-semibold text-gray-500'>
+              Watched Movies:{" "}
+              <span className='font-bold'>{watchedMoviesCount}</span>
+            </span>
+
+            <span className='text-sm font-semibold text-gray-500'>
+              Movies To Watch:{" "}
+              <span className='font-bold'>
+                {movies.filter((m) => !m.watched).length}
+              </span>
+            </span>
+          </div>
+        </div>
+        <div className='flex flex-col items-center justify-center mt-4 mb-10'>
+          <p className='text-center text-sm text-gray-700 m-2'>Sort By</p>
+          <div className='flex flex-col gap-4'>
+            <div className='flex items-center justify-evenly'>
+              <Button
+                handleClick={handleSortByYear}
+                sortBy={sortByYear}
+                title='Year'
+              />
+              <Button
+                handleClick={handleSortByName}
+                sortBy={sortByName}
+                title='Name'
+              />
+            </div>
+            <input
+              type='text'
+              className='p-2 border-2 rounded-xl'
+              onChange={handleOnChangeFiltering}
             />
           </div>
         </div>
@@ -177,6 +216,15 @@ function App() {
           handleWatchedMovie={handleWatchedMovie}
         />
       )}
+
+      <button
+        className={`p-5 m-5 cursor-pointer bg-gradient-to-l to-emerald-600 from-sky-400 rounded-full text-white sticky left-[85%] md:left-[95%] bottom-10 ${
+          isHidden ? "hidden" : ""
+        }`}
+        onClick={handleScrollToTop}
+      >
+        <FaArrowUp size={32} />
+      </button>
     </>
   );
 }
