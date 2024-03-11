@@ -15,6 +15,7 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   const [currentMovie, setCurrentMovie] = useState({});
   const [nextMovie, setNextMovie] = useState({});
+  const watchedMoviesCount = movies.filter((m) => m.watched).length;
 
   useState(() => {
     onValue(
@@ -33,26 +34,6 @@ function App() {
   const handleCardClick = (movie) => {
     setShowModal(true);
     setCurrentMovie(movie);
-    // let msg;
-    // if (movie.watched) {
-    //   msg = `Do you want to mark ${movie.title} as not watched?`;
-    // } else {
-    //   msg = `Have you watched ${movie.title}?`;
-    // }
-    // if (!confirm(msg)) {
-    //   return;
-    // }
-    // writeMovieData(
-    //   movie.title,
-    //   movie.title,
-    //   movie.year,
-    //   movie.image_url,
-    //   !movie.watched
-    // );
-    // const updatedMovies = movies.map((m) =>
-    //   m.title === movie.title ? { ...m, watched: !m.watched } : m
-    // );
-    // setMovies(updatedMovies);
   };
 
   const handleSortByYear = () => {
@@ -77,6 +58,7 @@ function App() {
   const handleNextMovieClick = () => {
     setNextMovie(currentMovie);
     writeNextMovie(currentMovie);
+    setShowModal(false);
   };
 
   const handleWatchedMovie = (e, movie) => {
@@ -99,6 +81,7 @@ function App() {
       m.title === movie.title ? { ...m, watched } : m
     );
     setMovies(updatedMovies);
+    setShowModal(false);
   };
 
   return (
@@ -116,12 +99,32 @@ function App() {
       </h1>
 
       <section id='content' className='mx-5 md:mx-20'>
-        <h4 className='text-center text-lg font-semibold text-gray-500'>
-          Next Movie:{" "}
-          <span className='text-transparent bg-clip-text font-extrabold bg-gradient-to-l to-emerald-600 from-sky-400'>
-            {nextMovie?.title}
-          </span>
-        </h4>
+        <div className='flex flex-col items-center justify-center gap-2'>
+          <h4 className='text-center text-lg font-semibold text-gray-500'>
+            Next:{" "}
+            <span
+              onClick={(e) => {
+                handleCardClick(
+                  movies.find((m) => m.title === e.target.textContent)
+                );
+              }}
+              className='text-transparent cursor-pointer bg-clip-text font-extrabold bg-gradient-to-l to-emerald-600 from-sky-400'
+            >
+              {nextMovie?.title}
+            </span>
+          </h4>
+          <p className='text-md font-semibold text-gray-500'>
+            Watched Movies Count:{" "}
+            <span className='font-bold'>{watchedMoviesCount}</span>
+          </p>
+
+          <p className='text-md font-semibold text-gray-500'>
+            Movies to watch:{" "}
+            <span className='font-bold'>
+              {movies.filter((m) => !m.watched).length}
+            </span>
+          </p>
+        </div>
         <div className='flex flex-col items-center justify-center gap-4 my-10'>
           <p className='text-center text-sm text-gray-700'>Sort By</p>
 

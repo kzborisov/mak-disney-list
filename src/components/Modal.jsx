@@ -14,7 +14,7 @@ const Modal = ({
     >
       <div
         id='content'
-        className='flex flex-col gap-2 justify-center bg-slate-50 py-5 px-10 w-2/3 md:w-1/3'
+        className='flex flex-col gap-6 justify-center bg-slate-50 py-5 px-5 md:px-10 w-[90%] md:w-1/3'
       >
         <div className='flex w-full justify-end'>
           <IoIosClose
@@ -23,25 +23,24 @@ const Modal = ({
             className='cursor-pointer'
           />
         </div>
-        <div className='flex flex-col items-center justify-between gap-4'>
+        <div className='flex flex-col items-center justify-center gap-6'>
           <h3 className='text-xl text-center md:text-3xl font-semibold text-gray-500'>
             {movie.title} ({movie.year})
           </h3>
-          <img src={movie.image_url} alt={movie.title} />
+          <img className='w-2/3' src={movie.image_url} alt={movie.title} />
 
           <div className='flex flex-col items-center justify-center gap-2'>
-            <p className='text-center text-md font-medium text-gray-500'>
-              Watched?
-            </p>
-            <div className='flex justify-between gap-2'>
-              <Button
-                handleClick={(e) => handleWatchedMovie(e, movie)}
-                title='Yes'
-              />
-              <Button
-                handleClick={(e) => handleWatchedMovie(e, movie)}
-                title='No'
-              />
+            <div className='flex items-center justify-between gap-4'>
+              <div className='flex justify-between gap-2'>
+                <Button
+                  handleClick={(e) => handleWatchedMovie(e, movie)}
+                  title='We watched it!'
+                />
+                <Button
+                  handleClick={(e) => handleWatchedMovie(e, movie)}
+                  title="We haven't watched it"
+                />
+              </div>
             </div>
             <Button handleClick={handleNextMovie} title='Watch next?' />
           </div>
